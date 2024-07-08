@@ -25,48 +25,47 @@ def sevaluate_board(board):
 
 evaluate = sevaluate_board 
 
-def ab(board, depth, white):
+def alphabeta(board, depth, white):
     start = time()
     def order_moves(moves, board):
         return moves
-    
-    def alphabeta(board,depth,alpha,beta,white):
+
+    def abmax(board, depth, alpha, beta):
+        if depth == 0: return evaluate(board)
+
         tb = board.copy()
-        if depth == 1: return evaluate(tb)
 
-        if white:
-            moves = tb.legal_moves
-            val = float('-inf')
-            for move in moves:
-                tb.push(move)
-                val = max(val, alphabeta(tb, depth-1, alpha, beta, False))
+        for move in tb.legal_moves:
+            val = abmin(board, depth-1, alpha, beta)
+            if val >= beta: return beta 
+            if val > alpha: alpha = val
+        return alpha 
+    
+    def abmin(board, depth, alpha, beta):
+        if depth == 0: return evaluate(board)
 
-                if val > beta: break
-                alpha = max(alpha,val)
+        tb = board.copy()
 
-                tb.pop()
-            return val
-        else:
-            moves = tb.legal_moves
-            val = float('inf')
-            for move in moves:
-                tb.push(move)
-                val = min(val, alphabeta(tb, depth-1, alpha, beta, True))
+        for move in tb.legal_moves:
+            val = abmax(board, depth-1, alpha, beta)
+            if val <= alpha: return alpha
+            if val < beta: beta = val
 
-                if val < alpha: break 
-                beta = min(beta, val)
+        return beta
 
-                tb.pop()
-            return val
 
     end = time()
-    return alphabeta(board, depth, float('-inf'), float('inf'), white)
-    
+
+    if white:
+        return abmax(board, depth, float('-inf'), float('inf'))
+    else:
+        return abmin(board, depth, float('-inf'), float('inf'))
+
 def evaluate_move(move, board):
     tb = board.copy()
     tb.push(move)
 
-    return [ab(tb, 3, True if tb.turn == chess.WHITE else False), move]
+    return [alphabeta(tb, 3, True if tb.turn == chess.WHITE else False), move]
 
 def find_best_move(board):
     white = True if board.turn == chess.WHITE else False
