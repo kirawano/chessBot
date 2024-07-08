@@ -36,9 +36,11 @@ def alphabeta(board, depth, white):
         tb = board.copy()
 
         for move in tb.legal_moves:
+            tb.push(move)
             val = abmin(board, depth-1, alpha, beta)
             if val >= beta: return beta 
             if val > alpha: alpha = val
+            tb.pop()
         return alpha 
     
     def abmin(board, depth, alpha, beta):
@@ -47,9 +49,12 @@ def alphabeta(board, depth, white):
         tb = board.copy()
 
         for move in tb.legal_moves:
+            tb.push(move)
             val = abmax(board, depth-1, alpha, beta)
             if val <= alpha: return alpha
-            if val < beta: beta = val
+            if val < beta:
+                beta = val
+            tb.pop()
 
         return beta
 
@@ -65,13 +70,18 @@ def evaluate_move(move, board):
     tb = board.copy()
     tb.push(move)
 
-    return [alphabeta(tb, 3, True if tb.turn == chess.WHITE else False), move]
+    score = alphabeta(tb, 3, True if tb.turn == chess.WHITE else False)
+    return [score, move]
 
 def find_best_move(board):
     white = True if board.turn == chess.WHITE else False
 
+    evals = []
+    for move in board.legal_moves:
+        evals.append(evaluate_move(move, board))
+
     if white:
-        return max(board.legal_moves, key=lambda m : evaluate_move(m, board)[0])
+        return max(evals, key=lambda m : m[0])[1]
     else:
-        return min(board.legal_moves, key=lambda m : evaluate_move(m, board)[0])
+        return min(evals, key=lambda m : m[0])[1]
 
