@@ -25,6 +25,7 @@ def alphabeta(board, depth, white):
     start = time()
 
     def order_moves(moves, board):
+        start = time()
         B = chess.BaseBoard(board.board_fen())
         omoves = []
         for move in moves:
@@ -32,15 +33,18 @@ def alphabeta(board, depth, white):
             if board.is_capture(move):
                 P = B.piece_type_at(move.from_square)
                 C = B.piece_type_at(move.to_square)
-                c1 = 1 if B.piece_at(move.from_square).color else -1
-                c2 = 1 if B.piece_at(move.to_square).color else -1
 
-                pv = c1 * val_map[P]
-                cv = c2 * val_map[C]
+                pv = val_map[P]
+                cv = val_map[C]
                 mg += 10 * cv - pv
             omoves.append([move, mg])
 
-        return sorted(omoves, key=lambda x: x[1])
+        smoves = sorted(omoves, key=lambda x: x[1])
+
+        ret = []
+        for move in smoves:
+            ret.append(move[0])
+        return ret
 
     def abmax(board, depth, alpha, beta):
         if depth == 0:
@@ -48,15 +52,16 @@ def alphabeta(board, depth, white):
 
         tb = board.copy()
 
-        # moves = order_moves(tb.legal_moves, tb)
-        moves = tb.legal_moves
+        start = time()
+        moves = order_moves(tb.legal_moves, tb)
+        # moves = tb.legal_moves
+        end = time()
 
         for move in moves:
-            # move = M[0]
             tb.push(move)
             val = abmin(board, depth - 1, alpha, beta)
             if val >= beta:
-                return beta
+                break
             if val > alpha:
                 alpha = val
             tb.pop()
@@ -68,15 +73,14 @@ def alphabeta(board, depth, white):
 
         tb = board.copy()
 
-        # moves = order_moves(tb.legal_moves, tb)
-        moves = tb.legal_moves
+        moves = order_moves(tb.legal_moves, tb)
+        # moves = tb.legal_moves
 
         for move in moves:
-            # move = M[0]
             tb.push(move)
             val = abmax(board, depth - 1, alpha, beta)
             if val <= alpha:
-                return alpha
+                break
             if val < beta:
                 beta = val
             tb.pop()
@@ -95,7 +99,7 @@ def evaluate_move(move, board):
     tb = board.copy()
     tb.push(move)
 
-    score = alphabeta(tb, 2, True if tb.turn == chess.WHITE else False)
+    score = alphabeta(tb, 4, True if tb.turn == chess.WHITE else False)
     return [score, move]
 
 
