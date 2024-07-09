@@ -1,5 +1,6 @@
 import chess
 from time import time
+from multiprocessing import Pool
 
 val_map = {1: 1, 2: 3, 3: 3, 4: 5, 5: 8, 6: 1000}
 
@@ -54,7 +55,6 @@ def alphabeta(board, depth, white):
 
         start = time()
         moves = order_moves(tb.legal_moves, tb)
-        # moves = tb.legal_moves
         end = time()
 
         for move in moves:
@@ -74,7 +74,6 @@ def alphabeta(board, depth, white):
         tb = board.copy()
 
         moves = order_moves(tb.legal_moves, tb)
-        # moves = tb.legal_moves
 
         for move in moves:
             tb.push(move)
@@ -84,7 +83,6 @@ def alphabeta(board, depth, white):
             if val < beta:
                 beta = val
             tb.pop()
-
         return beta
 
     end = time()
@@ -95,20 +93,20 @@ def alphabeta(board, depth, white):
         return abmin(board, depth, float("-inf"), float("inf"))
 
 
-def evaluate_move(move, board):
+def evaluate_move(move, board, depth):
     tb = board.copy()
     tb.push(move)
 
-    score = alphabeta(tb, 4, True if tb.turn == chess.WHITE else False)
+    score = alphabeta(tb, depth, True if tb.turn == chess.WHITE else False)
     return [score, move]
 
 
-def find_best_move(board):
+def find_best_move(board, depth):
     white = True if board.turn == chess.WHITE else False
 
     evals = []
     for move in board.legal_moves:
-        evals.append(evaluate_move(move, board))
+        evals.append(evaluate_move(move, board, depth))
 
     if white:
         return max(evals, key=lambda m: m[0])[1]
