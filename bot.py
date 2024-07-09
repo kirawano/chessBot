@@ -22,7 +22,7 @@ def sevaluate_board(board):
 evaluate = sevaluate_board
 
 
-def alphabeta(board, depth, white):
+def alphabeta(board, depth):
     start = time()
 
     def order_moves(moves, board):
@@ -48,14 +48,13 @@ def alphabeta(board, depth, white):
         return ret
 
     def abmax(board, depth, alpha, beta):
-        if depth == 0:
+        if depth == 1:
             return evaluate(board)
 
         tb = board.copy()
 
-        start = time()
         moves = order_moves(tb.legal_moves, tb)
-        end = time()
+        #moves = tb.legal_moves
 
         for move in moves:
             tb.push(move)
@@ -68,12 +67,13 @@ def alphabeta(board, depth, white):
         return alpha
 
     def abmin(board, depth, alpha, beta):
-        if depth == 0:
+        if depth == 1:
             return evaluate(board)
 
         tb = board.copy()
 
         moves = order_moves(tb.legal_moves, tb)
+        #moves = tb.legal_moves
 
         for move in moves:
             tb.push(move)
@@ -87,7 +87,7 @@ def alphabeta(board, depth, white):
 
     end = time()
 
-    if white:
+    if board.turn == chess.WHITE:
         return abmax(board, depth, float("-inf"), float("inf"))
     else:
         return abmin(board, depth, float("-inf"), float("inf"))
@@ -97,7 +97,7 @@ def evaluate_move(move, board, depth):
     tb = board.copy()
     tb.push(move)
 
-    score = alphabeta(tb, depth, True if tb.turn == chess.WHITE else False)
+    score = alphabeta(tb, depth)
     return [score, move]
 
 
