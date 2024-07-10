@@ -6,8 +6,9 @@ from bot import find_best_move
 from time import time
 from time import sleep
 
+depth = 30  
+
 def test_pos(FEN):
-    depth = 30
 
     # test positions: 
     # "r1bqkb1r/1pp2ppp/p1Np1n2/8/4pP2/2N1P3/PPPPQ1PP/R1B1KB1R b KQkq - 0 7"
@@ -32,5 +33,25 @@ def test_pos(FEN):
     board.push(best_move)
     print(board)
 
-# def main():
+def main(board):
+    while True:
+        print("================")
+        print(board)
+        print("================")
+        while True:
+            move = input("Move: ")
+            if chess.Move.from_uci(move) in board.legal_moves:
+                break
+            else:
+                print("enter a legal move dummy")
+        print("================")
+        board.push(chess.Move.from_uci(move))
+        print(board)
+        print("================")
+        b_move = find_best_move(board, depth)
+        board.push(b_move)
+        print(board)
+        print("================")
+        print("Bot played "+b_move.uci())
 
+main(chess.Board())
