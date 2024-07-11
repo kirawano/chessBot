@@ -50,6 +50,8 @@ def alphabeta(board, depth):
     def abmax(board, depth, alpha, beta):
         if depth == 1:
             return evaluate(board)
+        if board.is_checkmate():
+            return float('-inf')
 
         tb = board.copy()
 
